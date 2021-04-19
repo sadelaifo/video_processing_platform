@@ -46,10 +46,12 @@ int main(void)
 	string token2;
 	cout << token1 << endl;
 	status = db->Get(leveldb::ReadOptions(), key1, &token2);
-	
+	cout << token2 << endl;	
 	video_value_struct video_object_2;
 
-	unmarshall(token2, &video_object_2);
+	if (unmarshall(token2, &video_object_2) != 0) {
+		cerr << "unmarshall failed\n";	
+	};
 
 	if (!status.ok()) {
 		cerr << status.ToString() << endl;
