@@ -89,6 +89,5 @@ int unmarshall(string& s, video_value_struct* obj) {
 
 		obj->metadata_array.push_back(tmp);
 	}
-
 	return 0;
 }
