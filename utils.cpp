@@ -4,14 +4,14 @@ video_value_struct::video_value_struct() {
 	name = '\0';
 	path = '\0';
 	metadata_array.clear();
-	timestamp = std::chrono::system_clock::now();
+//	timestamp = std::chrono::system_clock::now();
 }
 
 video_value_struct::video_value_struct(string name, string path) {
 	this->name = name;
 	this->path = path;
 	metadata_array.clear();
-	timestamp = std::chrono::system_clock::now();
+//	timestamp = std::chrono::system_clock::now();
 }
 
 video_value_struct::~video_value_struct(){
@@ -190,16 +190,32 @@ std::string decide_eviction_victim(video_value_struct* obj) {
 	size_t id = 0;
 	double max_score = 0;
 	double f_score = 0;
-	for (size_t i = 0; i < obj.metadata_array.size(); i++) {
-		f_score = compute_f_score(obj.metadata_array[i].timestamp, obj.metadata_array.access_frequency);
+	for (size_t i = 0; i < obj->metadata_array.size(); i++) {
+		f_score = compute_f_score(obj->metadata_array[i].timestamp, obj->metadata_array[i].access_frequency);
 		if (f_score >= max_score) {
 			max_score = f_score;
 			id = i;
 		}
 	}
-	return obj.metadata_array[id].metadata_name;
+	return obj->metadata_array[id].metadata_name;
 }
 
-int get_metadata(leveldb::DB* db, string key, string metadata_name) {
+int get_metadata_path_given_metadata_name(leveldb::DB* db, string key, string metadata_name, string* metadata_path) {
+	string token;
+	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &token);
+	if (!s.ok()) {
+		return 1;
+	}
 	
+	video_value_struct obj;
+	if (marshall(token, &obj) != 0) {
+		return 1;
+	}
+	for (size_t i = 0; i < obj.metadata_array.size(); i++) {
+		if (metadata_name == obj.metadata_array[i].metadata_name) {
+			*metadata_path = obj.metadata_array[i].metadata_path;
+			return 0;
+		}
+	}
+	return 1;
 }
