@@ -38,6 +38,6 @@ struct video_value_struct {
 int unmarshall(string& str, video_value_struct* obj);
 int marshall(string& str, video_value_struct* obj);
 int add_metadata(leveldb::DB* db, string metadata_name, string metadata_path);
-
+int delete_metadata(leveldb::DB* db, string key, string metadata_name);
 
 #endif

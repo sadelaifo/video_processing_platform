@@ -132,5 +132,5 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 }
 
 int delete_metadata(leveldb::DB* db, string key, string metadata_name) {
-	
+leveldb:
 }
