@@ -37,7 +37,7 @@ int video_value_struct::add_metadata(string metadata_name, string metadata_path)
 }
 
 string video_value_struct::marshall() {
-	typedef duration <int, std::ratio<1> > seconds_type;
+//	typedef duration <int, std::ratio<1> > seconds_type;
 
 	std::string token;
 	token =  this->name + delimiter;
@@ -110,7 +110,24 @@ int marshall(string& token, video_value_struct* obj) {
 
 int add_metadata(leveldb::DB* db, string key, string metadata_name, string metadata_path) {
 	std::string token;
-	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, token);
+	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &token);
+	
+	video_value_struct obj;
+	unmarshall(token, &obj);
+
+	if (obj.metadata_array.size() >= max_num_metadata_types) {
+		std::string victim = decide_eviction_victim(&obj);
+		for (size_t i = 0; i < obj.metadata_array.size(); i++) {
+			if (obj.metadata_array[i].metadata_name == victim) {
+				obj.metadata_array.erase(obj.metadata_array.begin() + i);
+				break;
+			}
+		}
+		
+		if (marshall(token, &obj) != 0) {
+			return 1;
+		}		
+	}
 
 	if (!s.ok()) {
 		return 1;
@@ -132,5 +149,57 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 }
 
 int delete_metadata(leveldb::DB* db, string key, string metadata_name) {
-leveldb:
+	// read database and delete metadata entry	
+	size_t pos = 0;
+	std::string token;
+	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &token);
+	
+	if (!s.ok()) {
+		return 1;
+	}
+
+	if ((pos = token.find(metadata_name)) == std::string::npos) {
+                return 1;
+        }	
+	
+	string new_token = token.substr(0, pos);
+
+	if ((pos = token.find(delimiter, pos + metadata_name.length() + delimiter.length())) == std::string::npos) {
+		return 1;
+	}
+	
+	assert(pos + delimiter.length() < token.length());
+	new_token += token.substr(pos + delimiter.length(), token.length() - 1); 
+
+	// TODO: remove actual metadata path
+	
+	// write deleted entry string back to database
+	s = db->Put(leveldb::WriteOptions(), key, new_token);
+	if (!s.ok()) {
+		return 1;
+	}
+
+	return 0;
+}
+
+double compute_f_score(size_t timestamp, size_t access_frequency) {
+	return (int) ((double)timestamp * weights[0] + (double)access_frequency * weights[1]) / 2;
+}
+
+std::string decide_eviction_victim(video_value_struct* obj) {
+	size_t id = 0;
+	double max_score = 0;
+	double f_score = 0;
+	for (size_t i = 0; i < obj.metadata_array.size(); i++) {
+		f_score = compute_f_score(obj.metadata_array[i].timestamp, obj.metadata_array.access_frequency);
+		if (f_score >= max_score) {
+			max_score = f_score;
+			id = i;
+		}
+	}
+	return obj.metadata_array[id].metadata_name;
+}
+
+int get_metadata(leveldb::DB* db, string key, string metadata_name) {
+	
 }
