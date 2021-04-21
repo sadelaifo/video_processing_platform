@@ -7,6 +7,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <ctime>
+#include <time.h>
 #include <chrono>
 #include <ratio>
 #include <leveldb/db.h>
@@ -20,14 +21,14 @@ const int max_num_metadata_types = 5;
 struct video_metadata_struct {
 	string metadata_name;
 	string metadata_path;
-	size_t timestamp;
-	size_t access_frequency;
+	long int timestamp;
+	int access_frequency;
 };
 
 struct video_value_struct {
 	string name;
 	string path;
-	size_t timestamp;
+	long int timestamp;
 	vector <video_metadata_struct> metadata_array;
 
 	video_value_struct();
@@ -40,9 +41,9 @@ struct video_value_struct {
 
 int unmarshall(string& str, video_value_struct* obj);
 int marshall(string& str, video_value_struct* obj);
-int add_metadata(leveldb::DB* db, string metadata_name, string metadata_path);
+int add_metadata(leveldb::DB* db, string key, string metadata_name, string metadata_path);
 int delete_metadata(leveldb::DB* db, string key, string metadata_name);
 double compute_f_score(size_t timestamp, size_t access_frequency);
 std::string decide_eviction_victim(video_value_struct* obj);
-int get_metadata_path_given_metadata_name(leveldb::DB* db, string key, string metadata_name);
+int get_metadata_path_given_metadata_name(leveldb::DB* db, string key, string metadata_name, string* metadata_path);
 #endif

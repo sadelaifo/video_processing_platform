@@ -4,13 +4,14 @@ video_value_struct::video_value_struct() {
 	name = '\0';
 	path = '\0';
 	metadata_array.clear();
-//	timestamp = std::chrono::system_clock::now();
+	timestamp = static_cast<long int> (time(NULL));
 }
 
 video_value_struct::video_value_struct(string name, string path) {
 	this->name = name;
 	this->path = path;
 	metadata_array.clear();
+	timestamp = static_cast<long int> (time(NULL));
 //	timestamp = std::chrono::system_clock::now();
 }
 
@@ -18,21 +19,29 @@ video_value_struct::~video_value_struct(){
 	name.clear();
 	path.clear();
 	metadata_array.clear();
-
+	timestamp = 0;
 }
 
 int video_value_struct::clear() {
 	name.clear();
 	path.clear();
 	metadata_array.clear();
+	timestamp = 0;
 	return 0;
 }
 
 int video_value_struct::add_metadata(string metadata_name, string metadata_path) {
+//	if (this->
+
 	video_metadata_struct metadata;
 	metadata.metadata_name = metadata_name;
 	metadata.metadata_path = metadata_path;
+	metadata.timestamp =  static_cast<long int> (time(NULL));
+	metadata.access_frequency = 0;
 	metadata_array.push_back(metadata);
+
+//decide_eviction_victim
+
 	return 0;
 }
 
@@ -42,10 +51,13 @@ string video_value_struct::marshall() {
 	std::string token;
 	token =  this->name + delimiter;
        	token += this->path + delimiter;
+	token += to_string(this->timestamp) + delimiter;
 	size_t counter = 0;
 	while (this->metadata_array.size() > counter) {
 		token += this->metadata_array[counter].metadata_name + delimiter;
 		token += this->metadata_array[counter].metadata_path + delimiter;
+		token += to_string(this->metadata_array[counter].timestamp) + delimiter;
+		token += to_string(this->metadata_array[counter].access_frequency) + delimiter;
 		counter++;
 	}
 	
@@ -73,6 +85,14 @@ int unmarshall(string& s, video_value_struct* obj) {
 	obj->path = token;
 	s.erase(0, pos + delimiter.length());
 
+	// get timestamp
+        if ((pos = s.find(delimiter)) == std::string::npos) {
+                return 1;
+        }
+        token = s.substr(0, pos);
+        obj->timestamp = (long int) stoi(token);
+        s.erase(0, pos + delimiter.length());
+
 	while ((pos = s.find(delimiter)) != std::string::npos) {
 		video_metadata_struct tmp;
 
@@ -89,6 +109,22 @@ int unmarshall(string& s, video_value_struct* obj) {
 		tmp.metadata_path = token;
 		s.erase(0, pos + delimiter.length());
 
+		// get metadata 1 timestamp
+                if ((pos = s.find(delimiter)) == std::string::npos) {
+                        return 1;
+                }
+                token = s.substr(0, pos);
+                tmp.timestamp = (long int) stoi(token);
+                s.erase(0, pos + delimiter.length());
+
+		// get metadata 1 access frequency
+                if ((pos = s.find(delimiter)) == std::string::npos) {
+                        return 1;
+                }
+                token = s.substr(0, pos);
+                tmp.access_frequency = stoi(token);
+                s.erase(0, pos + delimiter.length());
+
 		obj->metadata_array.push_back(tmp);
 	}
 	return 0;
@@ -97,11 +133,13 @@ int unmarshall(string& s, video_value_struct* obj) {
 int marshall(string& token, video_value_struct* obj) {
 	token =  obj->name + delimiter;
 	token += obj->path + delimiter;
-
+        token += to_string(obj->timestamp) + delimiter;
 	size_t counter = 0;
 	while (obj->metadata_array.size() > counter) {
 		token += obj->metadata_array[counter].metadata_name + delimiter;
 		token += obj->metadata_array[counter].metadata_path + delimiter;
+		token += to_string(obj->metadata_array[counter].timestamp) + delimiter;
+		token += to_string(obj->metadata_array[counter].access_frequency) + delimiter;
 		counter++;
 	}
 
@@ -117,6 +155,9 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 
 	if (obj.metadata_array.size() >= max_num_metadata_types) {
 		std::string victim = decide_eviction_victim(&obj);
+		
+		cout << "[INFO] metadata >= 5. Removing existing metadata " << victim << " for space\n";
+	
 		for (size_t i = 0; i < obj.metadata_array.size(); i++) {
 			if (obj.metadata_array[i].metadata_name == victim) {
 				obj.metadata_array.erase(obj.metadata_array.begin() + i);
@@ -134,7 +175,8 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 	}
 	token += metadata_name + delimiter;
 	token += metadata_path + delimiter;
-
+	token += to_string(static_cast<long int> (time(NULL))) + delimiter;
+	token += to_string(0) + delimiter;
 	s = db->Delete(leveldb::WriteOptions(), key);
 	if (!s.ok()) {
 		return 1;
@@ -158,18 +200,31 @@ int delete_metadata(leveldb::DB* db, string key, string metadata_name) {
 		return 1;
 	}
 
+	// find loc of metadata_name
 	if ((pos = token.find(metadata_name)) == std::string::npos) {
                 return 1;
         }	
 	
 	string new_token = token.substr(0, pos);
 
+	// find loc of metadata_path
 	if ((pos = token.find(delimiter, pos + metadata_name.length() + delimiter.length())) == std::string::npos) {
 		return 1;
 	}
 	
+	// find loc of timestamp
+        if ((pos = token.find(delimiter, pos + delimiter.length())) == std::string::npos) {
+                return 1;
+        }
+	// find loc of access_frequency
+	if ((pos = token.find(delimiter, pos + delimiter.length())) == std::string::npos) {
+                return 1;
+        }
+
 	assert(pos + delimiter.length() < token.length());
 	new_token += token.substr(pos + delimiter.length(), token.length() - 1); 
+
+	cout << new_token << endl;
 
 	// TODO: remove actual metadata path
 	
@@ -208,12 +263,15 @@ int get_metadata_path_given_metadata_name(leveldb::DB* db, string key, string me
 	}
 	
 	video_value_struct obj;
-	if (marshall(token, &obj) != 0) {
+	if (unmarshall(token, &obj) != 0) {
 		return 1;
 	}
 	for (size_t i = 0; i < obj.metadata_array.size(); i++) {
 		if (metadata_name == obj.metadata_array[i].metadata_name) {
 			*metadata_path = obj.metadata_array[i].metadata_path;
+			obj.metadata_array[i].access_frequency += 1;
+			marshall(token, &obj);
+			db->Put(leveldb::WriteOptions(), key, token);
 			return 0;
 		}
 	}
