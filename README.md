@@ -50,15 +50,15 @@ This demo contains:
 5. Metadata eviction/replacement test.
 
 ### Sample output:
-
-./generate_metadata_file:
-
+```
+./generate_metadata_file
+```
 ![image](https://user-images.githubusercontent.com/16581163/116299424-aebea100-a76b-11eb-8021-6b4c8419021a.png)
 
 metadata file being generated can be viewed in 'metadata_file.txt'
-
-./main: 
-
+```
+./main
+```
 too long to display
 
 
