@@ -24,18 +24,18 @@ This project depends on leveldb. To correctly install levelDB:
 
 0. Install snappy on your machine
 ```
-	sudo apt-get install libsnappy-dev
+sudo apt-get install libsnappy-dev
 ```
 1. follow github readme.md:
 	https://github.com/google/leveldb
-*** define Top_directory = $(pwd) ***
+	
 2. go to "build/", and copy libleveldb.* to "/usr/lib"
 ```
-	sudo cp libleveldb.* /usr/lib
+sudo cp libleveldb.* /usr/lib
 ```
-3. go to "Top_directory/include", and copy entire 'leveldb/' to '/usr/include/'
+3. go to "Project_directory/include", and copy entire 'leveldb/' to '/usr/include/'
 ```
-	sudo cp -r leveldb /usr/include/
+sudo cp -r leveldb /usr/include/
 ```
 4. In makefile, when you compile, add '-lpthread' '-lsnappy' '-lleveldb' flag.
 
