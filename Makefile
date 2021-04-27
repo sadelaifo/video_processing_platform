@@ -1,6 +1,7 @@
 TARGET = main
 OBJS += main.o
 OBJS += utils.o
+OBJS += tests.o
 LIBS += -lleveldb
 LIBS += -lpthread
 LIBS += -lsnappy
