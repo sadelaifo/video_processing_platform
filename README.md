@@ -49,6 +49,9 @@ This demo contains:
 4. Reading a single metadata.
 5. Metadata eviction/replacement test.
 
+### Notes:
+When testing metadata replacement policy, 
+
 ### Sample output:
 ```
 ./generate_metadata_file
