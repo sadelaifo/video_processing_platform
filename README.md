@@ -1,6 +1,6 @@
 # video_processing_platform
 
-### Usage:
+### Usage & Introduction:
 1. Folder 'generate_metadata_file' contains the way to generate metadata testing file
 2. Open file 'metadata_pool.txt' and edit the pools of metadata entries
 3. Open file 'generate_metadata_file' and edit parameters listed there. This file generates metadata read queries used in test_5 of the main program. You may edit npoll -- # of queries, distribution -- name of the random distribution, d -- distribution function (normal distribution by default).
@@ -48,3 +48,5 @@ This demo contains:
 3. Deleting a metadata based on user needs.
 4. Reading a single metadata.
 5. Metadata eviction/replacement test.
+
+
