@@ -38,10 +38,10 @@ int main() {
 
 	outputfile << distribution << endl;
 
-	int i = 0;
+	size_t i = 0;
 	int min1 = nrolls;
 	while (i < nrolls) {
-		int tmp = (int) round(d(generator));
+		size_t tmp = (size_t) round(d(generator));
 //		cout << tmp << endl;
 		if (tmp >= 0 && tmp <= v.size() - 1) {
 			outputfile << v[tmp] << endl;
@@ -59,8 +59,8 @@ int main() {
 	}
 	min1 = min1 > 0 ? min1 : 1;
 	for (i = 0; i < v.size(); i++) {
-		cout << v[i] << "	";
-		for (int j = 0; j < a[i] / 500 ; j++) {
+		cout << setw(10) << left <<  v[i];
+		for (int j = 0; j < a[i] / 250 ; j++) {
 			cout << "*";
 		}
 		cout << endl;
