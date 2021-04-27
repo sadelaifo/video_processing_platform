@@ -40,8 +40,9 @@ sudo cp -r leveldb /usr/include/
 4. In makefile, when you compile, add '-lpthread' '-lsnappy' '-lleveldb' flag.
 
 ### Tests:
-This demo contains 4 tests
+This demo contains:
 1. Adding a new video entry & Adding up to 5 types of metadata
 2. Deleting a victim metadata when adding 6th metadata
 3. Deleting a metadata based on user needs.
 4. Reading a single metadata.
+5. Metadata eviction/replacement test.
