@@ -238,9 +238,13 @@ int delete_metadata(leveldb::DB* db, string key, string metadata_name) {
 }
 
 double compute_f_score(size_t timestamp, size_t access_frequency) {
-	return (int) ((double)timestamp * weights[0] + (double)access_frequency * weights[1]) / 2;
+//	return (int) ((double)timestamp * weights[0] + (double)access_frequency * weights[1]) / 2;
+//	double f2 = (double) access_frequency;
+	double f1 = (double) timestamp;
+	return -f1;
 }
 
+// evict entry with largest f score
 std::string decide_eviction_victim(video_value_struct* obj) {
 	size_t id = 0;
 	double max_score = 0;

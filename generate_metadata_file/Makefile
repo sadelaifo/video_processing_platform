@@ -1,10 +1,8 @@
-TARGET = main
-OBJS += main.o
-OBJS += utils.o
-OBJS += tests.o
-LIBS += -lleveldb
-LIBS += -lpthread
-LIBS += -lsnappy
+TARGET = generate_metadata_file
+OBJS += generate_metadata_file.o
+#LIBS += -lleveldb
+#LIBS += -lpthread
+#LIBS += -lsnappy
 #LIBS += -lpie
 
 CC = g++
@@ -22,7 +20,7 @@ all: $(TARGET)
 
 release: clean all
 
-debug: CFLAGS += -ggdb -O0  # debug flags
+debug: CFLAGS += -g -O0 -D_GLIBC_DEBUG # debug flags
 debug: clean $(TARGET)
 
 $(TARGET): $(OBJS)

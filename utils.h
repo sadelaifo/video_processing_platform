@@ -17,6 +17,7 @@ using namespace std;
 const std::string delimiter = "::";
 const double weights[2] = {0.5, 0.5};
 const int max_num_metadata_types = 5;
+const std::string replacement_policy = "Earlest created eviction";
 
 struct video_metadata_struct {
 	string metadata_name;

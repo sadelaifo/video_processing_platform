@@ -1,5 +1,19 @@
 #include "tests.h"
 
+void print_database(leveldb::DB* db, string key) {
+	string token;
+	leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &token);
+
+	if (!s.ok()) {
+		cerr << "Failed to open db\n";
+		return;
+	}
+	video_value_struct obj;
+	unmarshall(token, &obj);
+
+	print_video_struct_object(obj);	
+}
+
 void print_video_struct_object(video_value_struct& video_object_2) {
 	cout << "Parsing metadata: \n";
 	cout << "Name:          " << video_object_2.name << endl;
@@ -125,9 +139,50 @@ int test_4(string key1, leveldb::DB* db) {
 	return 0;
 }
 
-int test_5(leveldb::DB* db) {
+// testing metadata eviction policy
+int test_5(string key1, leveldb::DB* db) {
+	cout << "Test 5: testing metadata replacement\n";
+
 	std::ifstream inputfile;
 	inputfile.open ("metadata_file.txt", std::ifstream::in);
+	if (inputfile.fail()) {
+		cerr << "Failed to open metadata file\n";
+		return 1;
+	}
+//	string replacement_policy;
+	string distribution;
+	string mdata;
+	string mpath = " ";
+	int hits = 0;
+	int total_reads = 0;
+	string prev;
+	print_database(db, key1);
+
+	getline(inputfile, distribution);
+	cout << "distribution:		" << distribution << endl;
+	cout << "Replacement Policy:	" << replacement_policy << endl;
+	while (inputfile >> mdata) {
+		total_reads++;
+		int status = get_metadata_path_given_metadata_name(db, key1, mdata, &mpath);
+//		cout << mpath << endl;
+		cout << "status = " << status << endl;
+		if (status != 0) {
+			mpath = key1 + "_" + mdata + "_path";
+			add_metadata(db, key1, mdata, mpath);
+		} else {
+			hits++;
+		}
+		prev = mdata;
+		if (prev == mdata) {
+			continue;
+		}
+	}
+
+	cout << "Total metadata reads:	" << total_reads << endl;
+	cout << "Total hits:		" << hits << endl;
+	cout << "Hit rate:		" << (double) hits / total_reads << endl;
+
+	inputfile.close();
 	return 0;
 }
 

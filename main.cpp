@@ -15,7 +15,7 @@ int main(void)
 	leveldb::Options options;
 	options.create_if_missing = true;
 
-	leveldb::Status status = leveldb::DB::Open(options, "testdb", &db);
+	leveldb::Status status = leveldb::DB::Open(options, "mydb", &db);
 	//   assert(status.ok());
 
 	if (!status.ok()) {
@@ -43,7 +43,7 @@ int main(void)
 		delete db;
 		return 1;
 	}
-	if (test_5(db) != 0) {
+	if (test_5(key1, db) != 0) {
 		delete db;
 		return 1;
 	}
