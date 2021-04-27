@@ -165,7 +165,9 @@ int test_5(string key1, leveldb::DB* db) {
 		total_reads++;
 		int status = get_metadata_path_given_metadata_name(db, key1, mdata, &mpath);
 //		cout << mpath << endl;
-		cout << "status = " << status << endl;
+		if (verbose) {
+			cout << "status = " << status << endl;
+		}
 		if (status != 0) {
 			mpath = key1 + "_" + mdata + "_path";
 			add_metadata(db, key1, mdata, mpath);

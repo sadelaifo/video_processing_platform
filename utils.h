@@ -14,6 +14,8 @@
 
 using namespace std;
 
+extern int verbose;
+
 const std::string delimiter = "::";
 const double weights[2] = {0.5, 0.5};
 const int max_num_metadata_types = 5;

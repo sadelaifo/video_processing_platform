@@ -7,6 +7,7 @@
 #include <fstream>
 using namespace std;
 
+extern int verbose;
 
 int put_leveldb();
 void print_video_struct_object(video_value_struct& video_object_2);

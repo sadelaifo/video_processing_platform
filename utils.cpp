@@ -155,9 +155,9 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 
 	if (obj.metadata_array.size() >= max_num_metadata_types) {
 		std::string victim = decide_eviction_victim(&obj);
-		
-		cout << "[INFO] metadata >= 5. Removing existing metadata " << victim << " for space\n";
-	
+		if (verbose) {
+			cout << "[INFO] metadata >= 5. Removing existing metadata " << victim << " for space\n";
+		}
 		for (size_t i = 0; i < obj.metadata_array.size(); i++) {
 			if (obj.metadata_array[i].metadata_name == victim) {
 				obj.metadata_array.erase(obj.metadata_array.begin() + i);
@@ -173,10 +173,17 @@ int add_metadata(leveldb::DB* db, string key, string metadata_name, string metad
 	if (!s.ok()) {
 		return 1;
 	}
-	token += metadata_name + delimiter;
-	token += metadata_path + delimiter;
-	token += to_string(static_cast<long int> (time(NULL))) + delimiter;
-	token += to_string(0) + delimiter;
+
+	video_metadata_struct vms;
+	vms.metadata_name = metadata_name;
+	vms.metadata_path = metadata_path;
+	vms.timestamp = static_cast<long int> (time(NULL));
+	vms.access_frequency = 0;
+
+	obj.metadata_array.push_back(vms);
+
+	marshall(token, &obj);
+
 	s = db->Delete(leveldb::WriteOptions(), key);
 	if (!s.ok()) {
 		return 1;
@@ -223,9 +230,10 @@ int delete_metadata(leveldb::DB* db, string key, string metadata_name) {
 
 	assert(pos + delimiter.length() < token.length());
 	new_token += token.substr(pos + delimiter.length(), token.length() - 1); 
-
-	cout << new_token << endl;
-
+	
+	if (verbose) {
+		cout << new_token << endl;
+	}
 	// TODO: remove actual metadata path
 	
 	// write deleted entry string back to database
