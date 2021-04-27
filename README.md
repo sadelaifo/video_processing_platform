@@ -20,6 +20,8 @@ make
 ```
 
 ### Dependencies
+This project is tested functional on Ubuntu 18.04.
+
 This project depends on leveldb. To correctly install levelDB:
 
 0. Install snappy on your machine
