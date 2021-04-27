@@ -6,11 +6,11 @@
 using namespace std;
 
 //TODO: change me
-const string distribution = "pure random";
+const string distribution = "normal distribution, sigma=size / 5";
 const int nrolls = 100000;
-std::default_random_engine generator;
 
 int main() {
+	std::default_random_engine generator;
 	std::ofstream outputfile;
         outputfile.open ("../metadata_file.txt", std::ofstream::out);
         if (outputfile.fail()) {
@@ -32,7 +32,8 @@ int main() {
 		v.push_back(mdata);
 		//cout << "Reading metadata " << mdata << endl;
 	}
-	std::normal_distribution<double> d(v.size() / 2, v.size() / 10);
+	// TODO: change me
+	std::normal_distribution<double> d(v.size() / 2, v.size() / 5);
 	int* a = new int[v.size()];
 //	cout << 
 
