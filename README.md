@@ -31,11 +31,11 @@ sudo apt-get install libsnappy-dev
 1. follow github readme.md to build leveldb:
 	https://github.com/google/leveldb
 	
-2. go to "build/" created in step 1, and copy libleveldb.* to "/usr/lib"
+2. go to "Project_directory/build/" created in step 1, and copy libleveldb.* to "/usr/lib/"
 ```
-sudo cp libleveldb.* /usr/lib
+sudo cp libleveldb.* /usr/lib/
 ```
-3. go to "Project_directory/include", and copy entire 'leveldb/' to '/usr/include/'
+3. go to "Project_directory/include/", and copy entire 'leveldb/' directory to '/usr/include/'
 ```
 sudo cp -r leveldb /usr/include/
 ```
