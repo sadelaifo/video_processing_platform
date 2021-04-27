@@ -28,10 +28,10 @@ This project depends on leveldb. To correctly install levelDB:
 ```
 sudo apt-get install libsnappy-dev
 ```
-1. follow github readme.md:
+1. follow github readme.md to build leveldb:
 	https://github.com/google/leveldb
 	
-2. go to "build/", and copy libleveldb.* to "/usr/lib"
+2. go to "build/" created in step 1, and copy libleveldb.* to "/usr/lib"
 ```
 sudo cp libleveldb.* /usr/lib
 ```
