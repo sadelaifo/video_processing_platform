@@ -1,5 +1,5 @@
-TARGET = generate_metadata_file
-OBJS += generate_metadata_file.o
+TARGET = generate_test_cases
+OBJS += generate_test_cases.o
 #LIBS += -lleveldb
 #LIBS += -lpthread
 #LIBS += -lsnappy
